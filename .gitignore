@@ -27,6 +27,19 @@
 
 # Visual Studio cache directory
 .vs/
+.vscode/
+.idea/
+
+# Unity crash-recovery scenes and the old empty repository folders
+/[Aa]ssets/_Recovery/
+/[Aa]ssets/_Recovery.meta
+/ProfilerCaptures/
+/Claude outputs/
+/.kiro/
+/Emergency_VR/
+/Emergecy_vr/
+/emergency/
+/emregency_vr/
 
 # Gradle cache directory
 .gradle/

@@ -81,6 +81,40 @@ public class ThirdPersonPlayer : MonoBehaviour
     [Tooltip("Seconds to blend between standing, running and jumping.")]
     [Range(0.01f, 0.6f)] public float animationBlendTime = 0.2f;
 
+    [Header("Camera behind the character")]
+    [Tooltip("The camera stays behind him and turns with him. Joystick left/right turns him, " +
+             "up/down walks forward/back. Off = the old fixed camera angle.")]
+    public bool cameraBehind = true;
+    [Tooltip("How softly the camera swings round behind him when he turns (seconds). 0 = rigid.")]
+    [Range(0f, 1f)] public float cameraTurnSmoothTime = 0.25f;
+    [Tooltip("How fast he turns at full joystick left/right, degrees per second.")]
+    [Range(30f, 360f)] public float turnRate = 140f;
+    [Tooltip("Walking backwards is slower than forwards.")]
+    [Range(0.2f, 1f)] public float backwardSpeedFactor = 0.55f;
+
+    [Header("Joystick feel")]
+    [Tooltip("How far the joystick must go before he moves forward/back (0-1). Higher = tiny " +
+             "touches are ignored.")]
+    [Range(0f, 0.6f)] public float moveDeadZone = 0.2f;
+    [Tooltip("How far the joystick must go sideways before he turns (0-1). Kept higher than the " +
+             "move dead zone so pushing 'forward' slightly off-centre does not turn him.")]
+    [Range(0f, 0.7f)] public float turnDeadZone = 0.3f;
+    [Tooltip("Response curve. 1 = straight, 2 = small pushes very gentle, full push full speed.")]
+    [Range(1f, 3f)] public float responseCurve = 1.7f;
+
+    [Header("Solid world")]
+    [Tooltip("He cannot walk into cars, vans, trucks, bikes or carts.")]
+    public bool blockVehicles = true;
+    [Tooltip("He cannot walk into buildings, walls, trees or poles that have no collider of their own.")]
+    public bool blockBuildings = true;
+    [Tooltip("Only things at least this tall count as walls (world units). Kerbs, flower beds and " +
+             "low steps stay walkable.")]
+    public float minBlockHeight = 1.2f;
+    [Tooltip("Pieces bigger than this across are ignored (a whole street merged into one mesh).")]
+    public float maxBlockSize = 60f;
+    [Tooltip("Extra gap kept between him and a wall or car, world units.")]
+    [Range(0f, 0.5f)] public float wallGap = 0.08f;
+
     [Header("Screen")]
     public bool forceLandscape = true;
     public int targetFrameRate = 60;
@@ -88,8 +122,9 @@ public class ThirdPersonPlayer : MonoBehaviour
     // ------------------------------------------------------------------ state
 
     CharacterController _cc;
-    Vector3 _camOffset, _camVel;
-    Quaternion _camRotation;
+    Vector3 _camOffset, _camVel, _camLocalOffset;
+    Quaternion _camRotation, _camLocalRotation;
+    float _yaw, _camYaw, _camYawVel, _turnInput, _moveDir = 1f;
     float _vy;
     Vector3 _planarVel, _accelRef;
     float _yawVel;
@@ -112,6 +147,7 @@ public class ThirdPersonPlayer : MonoBehaviour
     {
         _cc = GetComponent<CharacterController>();
         if (followCamera == null) followCamera = Camera.main;
+        _yaw = _camYaw = transform.eulerAngles.y;
         DisableVR();
     }
 
@@ -123,14 +159,28 @@ public class ThirdPersonPlayer : MonoBehaviour
 
         if (followCamera != null)
         {
-            // Keep the camera exactly as it is in the scene - same angle, same distance.
+            if (cameraBehind)
+            {
+                // Start facing the way the camera looks, so the camera begins right behind him.
+                Vector3 camFwd = Vector3.ProjectOnPlane(followCamera.transform.forward, Vector3.up);
+                if (camFwd.sqrMagnitude > 1e-4f)
+                    transform.rotation = Quaternion.LookRotation(camFwd.normalized, Vector3.up);
+                _yaw = _camYaw = transform.eulerAngles.y;
+            }
+
+            // The camera's distance, height and tilt as placed in the scene - kept relative to
+            // him, so it is the same view of him whichever way he faces.
+            Quaternion inv = Quaternion.Inverse(Quaternion.Euler(0f, transform.eulerAngles.y, 0f));
             _camOffset = followCamera.transform.position - transform.position;
             _camRotation = followCamera.transform.rotation;
+            _camLocalOffset = inv * _camOffset;
+            _camLocalRotation = inv * _camRotation;
         }
 
         CaptureRestPose();        // before any animation touches the bones
         SetupAnimation();
         BuildControls();
+        CollectBlockers();
     }
 
     void OnDestroy()
@@ -175,19 +225,33 @@ public class ThirdPersonPlayer : MonoBehaviour
         if (dt <= 0f) return;
 
         Vector2 input = ReadMove();
+        Vector3 move;
 
-        // Directions relative to the camera, flattened to the ground.
-        Vector3 fwd = Vector3.forward, right = Vector3.right;
-        if (followCamera != null)
+        if (cameraBehind)
         {
-            fwd = Vector3.ProjectOnPlane(followCamera.transform.forward, Vector3.up);
-            if (fwd.sqrMagnitude < 0.0001f) fwd = Vector3.ProjectOnPlane(followCamera.transform.up, Vector3.up);
-            fwd.Normalize();
-            right = Vector3.Cross(Vector3.up, fwd);
-        }
+            // Steering: left/right turns him (smoothly), up/down walks forward/back along
+            // where he faces. The camera then swings round behind him in LateUpdate.
+            _turnInput = Mathf.MoveTowards(_turnInput, input.x, dt * 6f);
+            _yaw += _turnInput * turnRate * dt;
+            transform.rotation = Quaternion.Euler(0f, _yaw, 0f);
 
-        Vector3 move = fwd * input.y + right * input.x;
-        if (move.sqrMagnitude > 1f) move.Normalize();
+            float y = input.y < 0f ? input.y * backwardSpeedFactor : input.y;
+            move = transform.forward * y;
+        }
+        else
+        {
+            // Directions relative to the camera, flattened to the ground.
+            Vector3 fwd = Vector3.forward, right = Vector3.right;
+            if (followCamera != null)
+            {
+                fwd = Vector3.ProjectOnPlane(followCamera.transform.forward, Vector3.up);
+                if (fwd.sqrMagnitude < 0.0001f) fwd = Vector3.ProjectOnPlane(followCamera.transform.up, Vector3.up);
+                fwd.Normalize();
+                right = Vector3.Cross(Vector3.up, fwd);
+            }
+            move = fwd * input.y + right * input.x;
+            if (move.sqrMagnitude > 1f) move.Normalize();
+        }
 
         // Ease the speed in and out instead of jumping to it.
         Vector3 targetVel = move * moveSpeed;
@@ -196,7 +260,7 @@ public class ThirdPersonPlayer : MonoBehaviour
         _planarVel = Vector3.SmoothDamp(_planarVel, targetVel, ref _accelRef, ease);
         if (targetVel == Vector3.zero && _planarVel.sqrMagnitude < 0.0004f) _planarVel = Vector3.zero;
 
-        if (move.sqrMagnitude > 0.0025f)
+        if (!cameraBehind && move.sqrMagnitude > 0.0025f)
         {
             float targetYaw = Mathf.Atan2(move.x, move.z) * Mathf.Rad2Deg + modelYawOffset;
             float yaw = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetYaw, ref _yawVel,
@@ -240,6 +304,8 @@ public class ThirdPersonPlayer : MonoBehaviour
         velocity.y = _vy;
         if (_cc.enabled) _cc.Move(velocity * dt);
 
+        PushOutOfBlockers();
+
         if (_jumping && !_launchPending && _cc.isGrounded && _vy <= 0f)
         {
             // Landed. Let the clip's landing play out a little, then blend back to stand/run.
@@ -247,6 +313,10 @@ public class ThirdPersonPlayer : MonoBehaviour
             float landEnd = jumpLandTime > 0f ? jumpLandTime + 0.15f : 0f;
             if (jumpClip == null || clipT >= landEnd || _planarVel.sqrMagnitude > 1f) _jumping = false;
         }
+
+        // Walking backwards plays the run backwards, so the feet do not slide.
+        float along = Vector3.Dot(_planarVel, transform.forward);
+        if (Mathf.Abs(along) > 0.05f) _moveDir = along < 0f ? -1f : 1f;
 
         UpdateAnimation(_planarVel.magnitude / Mathf.Max(0.01f, moveSpeed), dt);
     }
@@ -256,11 +326,27 @@ public class ThirdPersonPlayer : MonoBehaviour
         FixPoseAfterAnimation();
 
         if (followCamera == null) return;
-        Vector3 target = transform.position + _camOffset;
-        followCamera.transform.position = cameraSmoothTime <= 0.001f
-            ? target
+
+        Vector3 offset = _camOffset;
+        Quaternion rot = _camRotation;
+        if (cameraBehind)
+        {
+            // Swing round behind him, a little behind his turn so it feels smooth.
+            _camYaw = cameraTurnSmoothTime <= 0.001f
+                ? _yaw
+                : Mathf.SmoothDampAngle(_camYaw, _yaw, ref _camYawVel, cameraTurnSmoothTime);
+            Quaternion yawRot = Quaternion.Euler(0f, _camYaw, 0f);
+            offset = yawRot * _camLocalOffset;
+            rot = yawRot * _camLocalRotation;
+        }
+
+        Vector3 target = transform.position + offset;
+        // When the camera is turning with him, follow position directly (a lagging position on
+        // top of the swing would make it drift sideways).
+        followCamera.transform.position = cameraSmoothTime <= 0.001f || cameraBehind
+            ? Vector3.Lerp(followCamera.transform.position, target, 1f - Mathf.Exp(-25f * Time.deltaTime))
             : Vector3.SmoothDamp(followCamera.transform.position, target, ref _camVel, cameraSmoothTime);
-        followCamera.transform.rotation = _camRotation;   // angle never changes
+        followCamera.transform.rotation = rot;
     }
 
     // ------------------------------------------------------------------ input
@@ -286,7 +372,205 @@ public class ThirdPersonPlayer : MonoBehaviour
 #elif ENABLE_LEGACY_INPUT_MANAGER
         v += new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
 #endif
-        return Vector2.ClampMagnitude(v, 1f);
+        v = Vector2.ClampMagnitude(v, 1f);
+        // Each axis on its own: a small sideways wobble while pushing forward is not a turn,
+        // and a tiny touch is not a step.
+        return new Vector2(Shape(v.x, cameraBehind ? turnDeadZone : moveDeadZone), Shape(v.y, moveDeadZone));
+    }
+
+    /// <summary>Dead zone, then a curve: gentle near the centre, full value at the edge.</summary>
+    float Shape(float a, float dead)
+    {
+        float m = Mathf.Abs(a);
+        if (m <= dead) return 0f;
+        float t = Mathf.Clamp01((m - dead) / Mathf.Max(0.01f, 1f - dead));
+        return Mathf.Sign(a) * Mathf.Pow(t, responseCurve);
+    }
+
+    // ------------------------------------------------------------------ solid world
+
+    /// <summary>
+    /// A box he cannot walk into: a vehicle (moves, so read from its transform every frame) or
+    /// a building / wall / tree (static). These are NOT physics colliders - adding real colliders
+    /// to the traffic would make the cars and pedestrians find each other's roofs when they look
+    /// for the ground. Only the player is kept out of them.
+    /// </summary>
+    class Blocker
+    {
+        public Transform t;          // vehicle root (moving), or null for a static box
+        public Bounds local;         // in t's space (vehicles)
+        public Vector3 c, ax, az;    // static: centre, horizontal axes (unit)
+        public float hx, hz, yMin, yMax, reach;
+    }
+
+    readonly System.Collections.Generic.List<Blocker> _blockers = new System.Collections.Generic.List<Blocker>();
+
+    void CollectBlockers()
+    {
+        _blockers.Clear();
+        float height = _cc != null ? _cc.height * Mathf.Abs(transform.lossyScale.y) : 2f;
+
+        if (blockVehicles)
+        {
+            var roots = new System.Collections.Generic.HashSet<Transform>();
+            foreach (var d in FindObjectsByType<RoadDriver>(FindObjectsSortMode.None))
+                if (!(d is PedestrianWalker)) roots.Add(d.transform);
+            foreach (var m in FindObjectsByType<AnimatedVehicleMover>(FindObjectsSortMode.None))
+                roots.Add(m.transform);
+
+            foreach (var root in roots)
+            {
+                bool any = false; Bounds lb = default;
+                foreach (var r in root.GetComponentsInChildren<Renderer>(true))
+                {
+                    if (r is ParticleSystemRenderer || r is LineRenderer || r is TrailRenderer) continue;
+                    if (r is SkinnedMeshRenderer) continue;     // riders / passengers / crew
+                    Bounds wb = r.bounds;
+                    for (int i = 0; i < 8; i++)
+                    {
+                        Vector3 corner = wb.center + Vector3.Scale(wb.extents,
+                            new Vector3((i & 1) == 0 ? -1 : 1, (i & 2) == 0 ? -1 : 1, (i & 4) == 0 ? -1 : 1));
+                        Vector3 p = root.InverseTransformPoint(corner);
+                        if (!any) { lb = new Bounds(p, Vector3.zero); any = true; } else lb.Encapsulate(p);
+                    }
+                }
+                if (!any) continue;
+                lb.extents *= 0.92f;                             // world AABBs are a little loose
+                _blockers.Add(new Blocker { t = root, local = lb });
+            }
+        }
+
+        if (blockBuildings)
+        {
+            Vector3 start = transform.position;
+            foreach (var mr in FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None))
+            {
+                if (!mr.enabled || mr.transform.IsChildOf(transform)) continue;
+                if (mr.GetComponentInParent<RoadDriver>() != null) continue;
+                if (mr.GetComponentInParent<AnimatedVehicleMover>() != null) continue;
+                var anim = mr.GetComponentInParent<Animator>();
+                if (anim != null && anim.runtimeAnimatorController != null) continue; // people, the ambulance rig
+                if (mr.GetComponent<Collider>() != null) continue;                    // already solid for him
+
+                Bounds wb = mr.bounds;
+                if (wb.size.y < minBlockHeight) continue;                           // kerbs, beds, steps
+                if (Mathf.Max(wb.size.x, wb.size.z) > maxBlockSize) continue;       // merged street chunks
+
+                if (!MakeStaticBox(mr, out Blocker b)) continue;
+
+                // A tree's bounds are its canopy; only the trunk is in the way at ground level.
+                string n = mr.name.ToLowerInvariant();
+                if (n.Contains("tree") || n.Contains("palm") || n.Contains("plant") || n.Contains("bush"))
+                {
+                    b.hx = Mathf.Min(b.hx, Mathf.Max(0.25f, b.hx * 0.12f));
+                    b.hz = Mathf.Min(b.hz, Mathf.Max(0.25f, b.hz * 0.12f));
+                    b.reach = Mathf.Sqrt(b.hx * b.hx + b.hz * b.hz);
+                }
+                if (Inside2D(b, start, 0f) && start.y > b.yMin - 0.5f && start.y < b.yMax) continue; // he starts in it: not a wall
+                _blockers.Add(b);
+            }
+        }
+    }
+
+    /// <summary>Oriented box from the mesh's own bounds, so a rotated building gets a rotated box.</summary>
+    static bool MakeStaticBox(MeshRenderer mr, out Blocker b)
+    {
+        b = null;
+        Bounds lb = mr.localBounds;
+        Matrix4x4 m = mr.transform.localToWorldMatrix;
+        Vector3[] half = { m.MultiplyVector(new Vector3(lb.extents.x, 0, 0)),
+                           m.MultiplyVector(new Vector3(0, lb.extents.y, 0)),
+                           m.MultiplyVector(new Vector3(0, 0, lb.extents.z)) };
+        // The most vertical local axis is "up" (Blender exports often stand on local Z).
+        int up = 0;
+        for (int i = 1; i < 3; i++)
+            if (Mathf.Abs(half[i].normalized.y) > Mathf.Abs(half[up].normalized.y)) up = i;
+        int a1 = (up + 1) % 3, a2 = (up + 2) % 3;
+        Vector3 h1 = half[a1], h2 = half[a2];
+        h1.y = 0f; h2.y = 0f;
+        float l1 = h1.magnitude, l2 = h2.magnitude;
+        if (l1 < 0.02f || l2 < 0.02f) return false;
+
+        Bounds wb = mr.bounds;
+        b = new Blocker
+        {
+            c = m.MultiplyPoint(lb.center),
+            ax = h1 / l1, az = h2 / l2, hx = l1, hz = l2,
+            yMin = wb.min.y, yMax = wb.max.y,
+        };
+        b.c.y = 0f;
+        b.reach = Mathf.Sqrt(l1 * l1 + l2 * l2);
+        return true;
+    }
+
+    static bool Inside2D(Blocker b, Vector3 p, float r)
+    {
+        Vector3 d = p - b.c; d.y = 0f;
+        return Mathf.Abs(Vector3.Dot(d, b.ax)) < b.hx + r && Mathf.Abs(Vector3.Dot(d, b.az)) < b.hz + r;
+    }
+
+    void PushOutOfBlockers()
+    {
+        if (_blockers.Count == 0 || _cc == null || !_cc.enabled) return;
+
+        float s = Mathf.Abs(transform.lossyScale.x);
+        float r = _cc.radius * s + wallGap;
+        float feet = transform.position.y;
+        float head = feet + _cc.height * Mathf.Abs(transform.lossyScale.y);
+
+        for (int pass = 0; pass < 2; pass++)          // two passes: a corner between two boxes
+        {
+            Vector3 p = transform.position;
+            Vector3 push = Vector3.zero;
+
+            foreach (var b in _blockers)
+            {
+                if (b.t != null)
+                {
+                    if (!b.t.gameObject.activeInHierarchy) continue;
+                    UpdateVehicleBox(b);
+                }
+
+                Vector3 d = p - b.c; d.y = 0f;
+                if (d.sqrMagnitude > (b.reach + r) * (b.reach + r)) continue;   // far away
+                if (head < b.yMin + 0.05f || feet > b.yMax - 0.05f) continue;    // under / on top of it
+
+                float u = Vector3.Dot(d, b.ax), v = Vector3.Dot(d, b.az);
+                float pu = b.hx + r - Mathf.Abs(u), pv = b.hz + r - Mathf.Abs(v);
+                if (pu <= 0f || pv <= 0f) continue;                                // not touching
+
+                // Out along the shallowest side, like sliding along a wall.
+                push += pu < pv ? b.ax * (u >= 0f ? pu : -pu) : b.az * (v >= 0f ? pv : -pv);
+            }
+
+            if (push.sqrMagnitude < 1e-8f) break;
+            _cc.Move(push);
+
+            // Stop pressing into it, so he slides along the wall instead of sticking.
+            Vector3 n = push.normalized;
+            float into = Vector3.Dot(_planarVel, n);
+            if (into < 0f) _planarVel -= n * into;
+        }
+    }
+
+    static void UpdateVehicleBox(Blocker b)
+    {
+        Matrix4x4 m = b.t.localToWorldMatrix;
+        Vector3[] half = { m.MultiplyVector(new Vector3(b.local.extents.x, 0, 0)),
+                           m.MultiplyVector(new Vector3(0, b.local.extents.y, 0)),
+                           m.MultiplyVector(new Vector3(0, 0, b.local.extents.z)) };
+        int up = 0;
+        for (int i = 1; i < 3; i++)
+            if (Mathf.Abs(half[i].normalized.y) > Mathf.Abs(half[up].normalized.y)) up = i;
+        Vector3 h1 = half[(up + 1) % 3], h2 = half[(up + 2) % 3];
+        h1.y = 0f; h2.y = 0f;
+        b.hx = Mathf.Max(0.01f, h1.magnitude); b.hz = Mathf.Max(0.01f, h2.magnitude);
+        b.ax = h1 / b.hx; b.az = h2 / b.hz;
+        Vector3 c = m.MultiplyPoint(b.local.center);
+        float vh = Mathf.Abs(half[up].y);
+        b.yMin = c.y - vh; b.yMax = c.y + vh;
+        c.y = 0f; b.c = c;
+        b.reach = Mathf.Sqrt(b.hx * b.hx + b.hz * b.hz);
     }
 
     bool ReadJumpKey()
@@ -368,7 +652,7 @@ public class ThirdPersonPlayer : MonoBehaviour
         // Run: loops forever, legs keep pace with the body.
         float runLen = Mathf.Max(0.01f, moveClip.length);
         float runSpeed = animationSpeed * Mathf.Clamp(amount, 0.6f, 1.1f);
-        _runTime = Mathf.Repeat(_runTime + dt * runSpeed, runLen);
+        _runTime = Mathf.Repeat(_runTime + dt * runSpeed * _moveDir, runLen);
         _runP.SetTime(_runTime);
 
         if (walkClip != null)
