@@ -34,6 +34,11 @@
 /[Aa]ssets/_Recovery/
 /[Aa]ssets/_Recovery.meta
 /ProfilerCaptures/
+/*.py
+/*Report.txt
+/*Report.html
+/*.slnx
+/remove_extra_files_from_github.bat
 /Claude outputs/
 /.kiro/
 /Emergency_VR/
