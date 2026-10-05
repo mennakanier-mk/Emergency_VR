@@ -1,0 +1,393 @@
+Vehicle wheel fix - scene 'SampleScene'
+2026-09-23 16:49:33
+
+VEH_amb
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_amb_.002
+        VEHWHEEL_amb_.003
+        VEHWHEEL_amb_.004
+        VEHWHEEL_amb_.005
+    radius: 0.372 -> 0.372
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_blue
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_blue_.001
+        VEHWHEEL_blue_.002
+        VEHWHEEL_blue_.003
+        VEHWHEEL_blue_.004
+    radius: 0.567 -> 0.567
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_blue_b
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_blue_b_.001
+        VEHWHEEL_blue_b_.002
+        VEHWHEEL_blue_b_.003
+        VEHWHEEL_blue_b_.004
+    radius: 0.535 -> 0.535
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_blue_c
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_blue_c_.001
+        VEHWHEEL_blue_c_.002
+        VEHWHEEL_blue_c_.003
+        VEHWHEEL_blue_c_.004
+    radius: 0.582 -> 0.582
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_fire
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_fire_.001
+        VEHWHEEL_fire_.005
+        VEHWHEEL_fire_.006
+        VEHWHEEL_fire_.008
+    radius: 0.720 -> 0.720
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_golf
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_golf_.001
+        VEHWHEEL_golf_.002
+        VEHWHEEL_golf_.003
+        VEHWHEEL_golf_.004
+    radius: 0.652 -> 0.652
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_golf_b
+    mode AutoDrive, speed 6, waypoints 1
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_golf_b_.001
+        VEHWHEEL_golf_b_.002
+        VEHWHEEL_golf_b_.003
+        VEHWHEEL_golf_b_.004
+    radius: 0.425 -> 0.425
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_golf_c
+    mode PathWaypoints, speed 6, waypoints 4
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_golf_c_.001
+        VEHWHEEL_golf_c_.002
+        VEHWHEEL_golf_c_.003
+        VEHWHEEL_golf_c_.004
+    radius: 0.423 -> 0.423
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_green
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_green_.001
+        VEHWHEEL_green_.002
+        VEHWHEEL_green_.003
+        VEHWHEEL_green_.004
+    radius: 0.464 -> 0.464
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_green_b
+    mode PathWaypoints, speed 6, waypoints 5
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_green_b_.001
+        VEHWHEEL_green_b_.002
+        VEHWHEEL_green_b_.003
+        VEHWHEEL_green_b_.004
+    radius: 0.498 -> 0.498
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_orange
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_orange_.001
+        VEHWHEEL_orange_.002
+        VEHWHEEL_orange_.003
+        VEHWHEEL_orange_.004
+    radius: 0.562 -> 0.562
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_orange_b
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_orange_b_.001
+        VEHWHEEL_orange_b_.002
+        VEHWHEEL_orange_b_.003
+        VEHWHEEL_orange_b_.004
+    radius: 0.625 -> 0.625
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_orange_c
+    mode AutoDrive, speed 6, waypoints 6
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_orange_c_.001
+        VEHWHEEL_orange_c_.002
+        VEHWHEEL_orange_c_.003
+        VEHWHEEL_orange_c_.004
+    radius: 0.571 -> 0.571
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_policecar
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_policecar_.003
+        VEHWHEEL_policecar_.004
+        VEHWHEEL_policecar_.005
+        VEHWHEEL_policecar_.006
+    radius: 0.529 -> 0.529
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_policevan
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_policevan_.001
+        VEHWHEEL_policevan_.002
+        VEHWHEEL_policevan_.003
+        VEHWHEEL_policevan_ue_0
+    radius: 0.630 -> 0.630
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_red
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_red_.001
+        VEHWHEEL_red_.002
+        VEHWHEEL_red_.003
+        VEHWHEEL_red_.004
+    radius: 0.527 -> 0.527
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_salmon
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_salmon_.001
+        VEHWHEEL_salmon_.002
+        VEHWHEEL_salmon_.003
+        VEHWHEEL_salmon_.004
+    radius: 0.421 -> 0.421
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_salmon_b
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_salmon_b_.001
+        VEHWHEEL_salmon_b_.002
+        VEHWHEEL_salmon_b_.003
+        VEHWHEEL_salmon_b_.004
+    radius: 0.421 -> 0.421
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_sedan
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_sedan_.001
+        VEHWHEEL_sedan_.002
+        VEHWHEEL_sedan_.003
+        VEHWHEEL_sedan_.004
+    radius: 0.506 -> 0.506
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_sedan_c
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_sedan_c_.001
+        VEHWHEEL_sedan_c_.002
+        VEHWHEEL_sedan_c_.003
+        VEHWHEEL_sedan_c_.004
+    radius: 0.455 -> 0.455
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_silver
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_silver_.001
+        VEHWHEEL_silver_.002
+        VEHWHEEL_silver_.003
+        VEHWHEEL_silver_.004
+    radius: 0.568 -> 0.568
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_silver_b
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_silver_b_.001
+        VEHWHEEL_silver_b_.002
+        VEHWHEEL_silver_b_.003
+        VEHWHEEL_silver_b_.004
+    radius: 0.548 -> 0.548
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_taxi
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_taxi_.001
+        VEHWHEEL_taxi_.002
+        VEHWHEEL_taxi_t2_0
+        VEHWHEEL_taxi_t2_0.001
+    radius: 0.531 -> 0.531
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_taxi_b
+    mode PathWaypoints, speed 6, waypoints 4
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_taxi_b_.001
+        VEHWHEEL_taxi_b_.002
+        VEHWHEEL_taxi_b_t2_0
+        VEHWHEEL_taxi_b_t2_0.001
+    radius: 0.504 -> 0.504
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_taxi_c
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_taxi_c_.001
+        VEHWHEEL_taxi_c_.002
+        VEHWHEEL_taxi_c_t2_0
+        VEHWHEEL_taxi_c_t2_0.001
+    radius: 0.395 -> 0.395
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_tuk1
+    mode PathWaypoints, speed 6, waypoints 1
+    already assigned: 3
+    found: 3 via name
+        VEHWHEEL_tuk1_.001
+        VEHWHEEL_tuk1_.002
+        VEHWHEEL_tuk1_.003
+    radius: 0.351 -> 0.351
+    RESULT: 1 front / 2 rear, auto-detect off.
+
+VEH_tuk1_b
+    mode PathWaypoints, speed 6, waypoints 4
+    already assigned: 3
+    found: 3 via name
+        VEHWHEEL_tuk1_b_.001
+        VEHWHEEL_tuk1_b_.002
+        VEHWHEEL_tuk1_b_.003
+    radius: 0.392 -> 0.392
+    RESULT: 1 front / 2 rear, auto-detect off.
+
+VEH_tuk2
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 3
+    found: 3 via name
+        VEHWHEEL_tuk2_.004
+        VEHWHEEL_tuk2_.005
+        VEHWHEEL_tuk2_.006
+    radius: 0.421 -> 0.421
+    RESULT: 1 front / 2 rear, auto-detect off.
+
+VEH_van
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_van_.001
+        VEHWHEEL_van_.002
+        VEHWHEEL_van_.005
+        VEHWHEEL_van_.006
+    radius: 0.410 -> 0.410
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_wagon
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 141
+    found: 0 via nothing
+    cleared a previously written wheel list.
+    RESULT: no wheel objects of its own - left with none.
+
+VEH_wagon_b
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 141
+    found: 0 via nothing
+    cleared a previously written wheel list.
+    RESULT: no wheel objects of its own - left with none.
+
+VEH_white1
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_white1_.001
+        VEHWHEEL_white1_.002
+        VEHWHEEL_white1_.003
+        VEHWHEEL_white1_.004
+    radius: 0.532 -> 0.532
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_white1_b
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_white1_b_.001
+        VEHWHEEL_white1_b_.002
+        VEHWHEEL_white1_b_.003
+        VEHWHEEL_white1_b_.004
+    radius: 0.405 -> 0.405
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_white1_c
+    mode AutoDrive, speed 6, waypoints 0
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_white1_c_.001
+        VEHWHEEL_white1_c_.002
+        VEHWHEEL_white1_c_.003
+        VEHWHEEL_white1_c_.004
+    radius: 0.478 -> 0.478
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_white2
+    mode PathWaypoints, speed 6, waypoints 3
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_white2_.001
+        VEHWHEEL_white2_.002
+        VEHWHEEL_white2_.003
+        VEHWHEEL_white2_.004
+    radius: 0.667 -> 0.667
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+VEH_white2_b
+    mode AutoDrive, speed 6, waypoints 1
+    already assigned: 4
+    found: 4 via name
+        VEHWHEEL_white2_b_.001
+        VEHWHEEL_white2_b_.002
+        VEHWHEEL_white2_b_.003
+        VEHWHEEL_white2_b_.004
+    radius: 0.638 -> 0.638
+    RESULT: 2 front / 2 rear, auto-detect off.
+
+----
+vehicles: 36
+wheels resolved: 34
+no wheels found: 2
+  VEH_wagon, VEH_wagon_b

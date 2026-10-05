@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Read by the External Dependency Manager (Assets/MobileDependencyResolver).
+  Any *Dependencies.xml under an Editor folder is merged into the generated
+  Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build.gradle, inside the
+  "// Android Resolver Dependencies" block.
+
+  Why this file exists:
+  The Google Cardboard XR Plugin's AndroidManifest asks for
+  @style/Theme.AppCompat.NoActionBar, which lives in androidx.appcompat. Unity only
+  injects appcompat automatically when Application Entry is GameActivity - but the
+  Cardboard plugin predates GameActivity and expects the classic UnityPlayerActivity,
+  so running under GameActivity crashes on startup.
+
+  Declaring appcompat here lets Application Entry stay on Activity (what Cardboard
+  needs) while still resolving the theme (what Gradle needs).
+
+  Versions match what Unity itself injects for GameActivity, so nothing is upgraded
+  behind your back.
+-->
+<dependencies>
+  <androidPackages>
+    <androidPackage spec="androidx.appcompat:appcompat:1.6.1" />
+    <androidPackage spec="androidx.core:core:1.9.0" />
+  </androidPackages>
+</dependencies>
